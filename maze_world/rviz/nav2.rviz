@@ -280,7 +280,7 @@ Visualization Manager:
       Name: Current View
       Near Clip Distance: 0.01
       Pitch: 0.785398
-      Target Frame: base_footprint
+      Target Frame: map
       Value: Orbit (rviz_default_plugins)
       Yaw: 0.785398
       
