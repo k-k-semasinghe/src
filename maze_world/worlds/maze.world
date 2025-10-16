@@ -1,0 +1,309 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+<world name="maze_world">
+<include>
+<uri>model://sun</uri>
+</include>
+<include>
+<uri>model://ground_plane</uri>
+</include>
+
+<!-- Outer boundaries -->
+<model name="wall_top">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>3.0 0.05 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>3.0 0.05 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>0 1.5 0.25 0 0 0</pose>
+</link>
+</model>
+
+<model name="wall_bottom">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>3.0 0.05 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>3.0 0.05 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>0 -1.5 0.25 0 0 0</pose>
+</link>
+</model>
+
+<model name="wall_left">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>0.05 3.0 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>0.05 3.0 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>-1.5 0 0.25 0 0 0</pose>
+</link>
+</model>
+
+<model name="wall_right">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>0.05 3.0 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>0.05 3.0 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>1.5 0 0.25 0 0 0</pose>
+</link>
+</model>
+
+<!-- Horizontal walls -->
+<model name="wall_h1">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>1.5 0.05 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>1.5 0.05 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>0.25 0.5 0.25 0 0 0</pose>
+</link>
+</model>
+
+<model name="wall_h2">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>1.0 0.05 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>1.0 0.05 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>1.0 0.0 0.25 0 0 0</pose>
+</link>
+</model>
+
+<model name="wall_h3">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>1.5 0.05 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>1.5 0.05 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>-0.25 -0.5 0.25 0 0 0</pose>
+</link>
+</model>
+
+<model name="wall_h4">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>0.5 0.05 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>0.5 0.05 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>-1.25 -1.0 0.25 0 0 0</pose>
+</link>
+</model>
+
+<model name="wall_h5">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>1.5 0.05 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>1.5 0.05 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>0.25 -1.0 0.25 0 0 0</pose>
+</link>
+</model>
+
+<!-- Vertical walls -->
+<model name="wall_v1">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>-1.0 0.75 0.25 0 0 0</pose>
+</link>
+</model>
+
+<model name="wall_v2">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>-1.0 -0.25 0.25 0 0 0</pose>
+</link>
+</model>
+
+<model name="wall_v3">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>0.0 0.75 0.25 0 0 0</pose>
+</link>
+</model>
+
+<model name="wall_v4">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>0.0 -0.25 0.25 0 0 0</pose>
+</link>
+</model>
+
+<model name="wall_v5">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>-0.5 1.25 0.25 0 0 0</pose>
+</link>
+</model>
+
+<model name="wall_v6">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>-1.0 0.25 0.25 0 0 0</pose>
+</link>
+</model>
+
+<model name="wall_v7">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>-0.5 0.25 0.25 0 0 0</pose>
+</link>
+</model>
+
+<model name="wall_v8">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>1.0 0.75 0.25 0 0 0</pose>
+</link>
+</model>
+
+<model name="wall_v9">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>0.5 1.25 0.25 0 0 0</pose>
+</link>
+</model>
+
+<model name="wall_v10">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>0.5 0.25 0.25 0 0 0</pose>
+</link>
+</model>
+
+<model name="wall_v11">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>1.0 -0.75 0.25 0 0 0</pose>
+</link>
+</model>
+
+<model name="wall_v12">
+<static>true</static>
+<link name="link">
+<collision name="collision">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+</collision>
+<visual name="visual">
+<geometry><box><size>0.05 0.5 0.5</size></box></geometry>
+<material><ambient>0.3 0.3 0.3 1</ambient></material>
+</visual>
+<pose>1.0 -0.25 0.25 0 0 0</pose>
+</link>
+</model>
+
+</world>
+</sdf>
