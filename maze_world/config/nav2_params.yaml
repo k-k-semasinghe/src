@@ -108,7 +108,7 @@ global_costmap:
         plugin: "nav2_costmap_2d::InflationLayer"
         # INCREASED from 0.14m to 0.18m
         # Keeps robot further from walls, especially on turns
-        inflation_radius: 0.18
+        inflation_radius: 0.14
         cost_scaling_factor: 10.0
         
       always_send_full_costmap: True
