@@ -1,0 +1,8 @@
+ros2 launch maze_world navigation.launch.py
+
+
+rviz2 -d ~/turtlebot3_ws/src/maze_world/rviz/nav2.rviz
+
+
+
+ros2 launch maze_world maze.launch.py

@@ -1,0 +1,34 @@
+<!-- my_nav_bt.xml -->
+<root main_tree_to_execute="NavigateToPose">
+
+  <BehaviorTree ID="NavigateToPose">
+    <Sequence name="root_sequence">
+
+      <!-- Compute path using planner -->
+      <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+
+      <!-- Follow that path -->
+      <FollowPath path="{path}" controller_id="FollowPath"/>
+
+      <!-- If something fails, go to recovery -->
+      <RecoveryNode name="recovery" number_of_retries="3">
+        <SequenceStar name="RecoverySequence">
+
+          <!-- Step 1: Back up -->
+          <BackUp name="backup" backup_dist="0.25" backup_speed="0.05"/>
+
+          <!-- Step 2: Rotate to adjust orientation -->
+          <Spin name="spin" spin_dist="1.57"/> <!-- 90 degrees -->
+
+          <!-- Step 3: Clear local costmap -->
+          <ClearEntireCostmap name="clear_local_costmap"
+                    service_name="local_costmap/clear_entirely_local_costmap"/>
+
+
+        </SequenceStar>
+      </RecoveryNode>
+
+    </Sequence>
+  </BehaviorTree>
+
+</root>

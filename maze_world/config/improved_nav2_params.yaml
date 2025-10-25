@@ -1,0 +1,341 @@
+bt_navigator:
+  ros__parameters:
+    use_sim_time: True
+    global_frame: map
+    robot_base_frame: base_footprint
+    odom_topic: /odom
+    bt_loop_duration: 10
+    default_server_timeout: 120           # INCREASED for long paths
+    enable_groot_monitoring: True
+    groot_zmq_publisher_port: 1666
+    groot_zmq_server_port: 1667
+    plugin_lib_names:
+    - nav2_compute_path_through_poses_action_bt_node
+    - nav2_compute_path_to_pose_action_bt_node
+    - nav2_smooth_path_action_bt_node
+    - nav2_follow_path_action_bt_node
+    - nav2_spin_action_bt_node
+    - nav2_wait_action_bt_node
+    - nav2_back_up_action_bt_node
+    - nav2_drive_on_heading_bt_node
+    - nav2_clear_costmap_service_bt_node
+    - nav2_is_stuck_condition_bt_node
+    - nav2_goal_reached_condition_bt_node
+    - nav2_goal_updated_condition_bt_node
+    - nav2_globally_updated_goal_condition_bt_node
+    - nav2_is_path_valid_condition_bt_node
+    - nav2_initial_pose_received_condition_bt_node
+    - nav2_reinitialize_global_localization_service_bt_node
+    - nav2_rate_controller_bt_node
+    - nav2_distance_controller_bt_node
+    - nav2_speed_controller_bt_node
+    - nav2_truncate_path_action_bt_node
+    - nav2_truncate_path_local_action_bt_node
+    - nav2_goal_updater_node_bt_node
+    - nav2_recovery_node_bt_node
+    - nav2_pipeline_sequence_bt_node
+    - nav2_round_robin_node_bt_node
+    - nav2_transform_available_condition_bt_node
+    - nav2_time_expired_condition_bt_node
+    - nav2_path_expiring_timer_condition
+    - nav2_distance_traveled_condition_bt_node
+    - nav2_single_trigger_bt_node
+    - nav2_is_battery_low_condition_bt_node
+    - nav2_navigate_through_poses_action_bt_node
+    - nav2_navigate_to_pose_action_bt_node
+    - nav2_remove_passed_goals_action_bt_node
+    - nav2_planner_selector_bt_node
+    - nav2_controller_selector_bt_node
+    - nav2_goal_checker_selector_bt_node
+    - nav2_controller_cancel_bt_node
+    - nav2_path_longer_on_approach_bt_node
+    - nav2_wait_cancel_bt_node
+    - nav2_spin_cancel_bt_node
+    - nav2_back_up_cancel_bt_node
+    - nav2_drive_on_heading_cancel_bt_node
+
+# ===================================================================
+# PLANNER SERVER - SMAC 2D optimized for LONG DISTANCE paths
+# ===================================================================
+planner_server:
+  ros__parameters:
+    use_sim_time: True
+    expected_planner_frequency: 0.2      # SLOWER for long paths (was 0.5)
+    planner_server_timeout: 15.0         # INCREASED (was 10.0)
+    planner_plugins: ["GridBased"]
+    GridBased:
+      plugin: "nav2_smac_planner/SmacPlanner2D"
+      
+      # CRITICAL: Small tolerance for SMAC (prevents planning through walls)
+      tolerance: 0.15
+      
+      # KEY FOR LONG DISTANCES: Downsample the costmap!
+      # This makes planning MUCH faster for large maps
+      downsample_costmap: true           # CHANGED from false
+      downsampling_factor: 2             # Plan on 0.10m grid instead of 0.05m
+      
+      allow_unknown: false                # Never plan through unknown space
+      
+      # INCREASED iterations for long paths
+      max_iterations: 2000000             # DOUBLED from 1000000
+      max_on_approach_iterations: 2000    # DOUBLED from 1000
+      max_planning_time: 10.0             # INCREASED from 3.5
+      
+      # CRITICAL: Strong penalty for high-cost areas (prevents wall-cutting)
+      cost_travel_multiplier: 12.0       # High value = strongly avoid obstacles
+      
+      use_final_approach_orientation: false
+      
+      # Path smoother - helps create nicer paths
+      smoother:
+        max_iterations: 1000
+        w_smooth: 0.3
+        w_data: 0.2
+        tolerance: 1.0e-10
+        do_refinement: true
+
+# ===================================================================
+# GLOBAL COSTMAP - Tuned to match your working NavFn config
+# ===================================================================
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      update_frequency: 1.0
+      publish_frequency: 1.0
+      global_frame: map
+      robot_base_frame: base_footprint
+      use_sim_time: True
+      # CRITICAL FIX: Use footprint instead of radius for turn clearance
+      # TurtleBot3 Burger dimensions: 0.14m x 0.14m (square-ish)
+      footprint: "[[-0.105, -0.105], [0.105, -0.105], [0.105, 0.105], [-0.105, 0.105]]"
+      # robot_radius: 0.11  # REMOVED - using footprint instead
+      resolution: 0.05
+      track_unknown_space: true
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transient_local: True
+        
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+          raytrace_max_range: 3.5
+          raytrace_min_range: 0.0
+          obstacle_max_range: 3.0
+          obstacle_min_range: 0.0
+          
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        # CRITICAL: Much larger inflation for turn safety
+        # Robot needs clearance when rotating (corners swing out)
+        inflation_radius: 0.35            # INCREASED from 0.18
+        cost_scaling_factor: 8.0          # Slightly reduced for smoother gradient
+        
+      always_send_full_costmap: True
+
+# ===================================================================
+# LOCAL COSTMAP - Match your working config
+# ===================================================================
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      update_frequency: 5.0
+      publish_frequency: 2.0
+      global_frame: odom
+      robot_base_frame: base_footprint
+      use_sim_time: True
+      rolling_window: true
+      width: 5
+      height: 5
+      resolution: 0.05
+      # CRITICAL: Use same footprint as global costmap
+      footprint: "[[-0.105, -0.105], [0.105, -0.105], [0.105, 0.105], [-0.105, 0.105]]"
+      # robot_radius: 0.11  # REMOVED
+      plugins: ["voxel_layer", "inflation_layer"]
+      
+      voxel_layer:
+        plugin: "nav2_costmap_2d::VoxelLayer"
+        enabled: True
+        publish_voxel_map: True
+        origin_z: 0.0
+        z_resolution: 0.05
+        z_voxels: 16
+        max_obstacle_height: 2.0
+        mark_threshold: 0
+        observation_sources: scan
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+          raytrace_max_range: 3.5
+          raytrace_min_range: 0.0
+          obstacle_max_range: 3.0
+          obstacle_min_range: 0.0
+          
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        # CRITICAL: Larger inflation for rotation safety
+        inflation_radius: 0.30            # INCREASED from 0.16
+        cost_scaling_factor: 6.0          # Slightly reduced
+        
+      always_send_full_costmap: True
+
+# ===================================================================
+# CONTROLLER - Keep your working DWB configuration
+# ===================================================================
+controller_server:
+  ros__parameters:
+    use_sim_time: True
+    controller_frequency: 20.0
+    min_x_velocity_threshold: 0.001
+    min_y_velocity_threshold: 0.5
+    min_theta_velocity_threshold: 0.001
+    failure_tolerance: 0.5
+    progress_checker_plugin: "progress_checker"
+    goal_checker_plugins: ["general_goal_checker"]
+    controller_plugins: ["FollowPath"]
+
+    progress_checker:
+      plugin: "nav2_controller::SimpleProgressChecker"
+      required_movement_radius: 0.3
+      movement_time_allowance: 45.0      # INCREASED for long paths
+    
+    general_goal_checker:
+      stateful: True
+      plugin: "nav2_controller::SimpleGoalChecker"
+      xy_goal_tolerance: 0.10
+      yaw_goal_tolerance: 0.25
+    
+    FollowPath:
+      plugin: "dwb_core::DWBLocalPlanner"
+      debug_trajectory_details: True
+      min_vel_x: 0.0
+      min_vel_y: 0.0
+      max_vel_x: 0.18                     # REDUCED from 0.22 for safer turns
+      max_vel_y: 0.0
+      max_vel_theta: 0.8                  # REDUCED from 1.0 for controlled rotation
+      min_speed_xy: 0.0
+      max_speed_xy: 0.18                  # REDUCED from 0.22
+      min_speed_theta: 0.0
+      acc_lim_x: 2.0                      # Slightly reduced for smoother motion
+      acc_lim_y: 0.0
+      acc_lim_theta: 2.5                  # REDUCED from 3.2 for controlled turns
+      decel_lim_x: -2.0
+      decel_lim_y: 0.0
+      decel_lim_theta: -2.5
+      vx_samples: 20
+      vy_samples: 0
+      vtheta_samples: 40
+      sim_time: 2.5                       # INCREASED from 2.0 for better lookahead
+      linear_granularity: 0.05
+      angular_granularity: 0.025
+      transform_tolerance: 0.2
+      xy_goal_tolerance: 0.10
+      trans_stopped_velocity: 0.25
+      short_circuit_trajectory_evaluation: True
+      stateful: True
+      
+      # Use your proven working DWB critic configuration
+      critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
+      
+      # CRITICAL: MUCH stronger obstacle avoidance during turns
+      BaseObstacle.scale: 2.0             # INCREASED from 0.5 (4x stronger!)
+      BaseObstacle.sum_scores: false
+      
+      # Strong path following (keeps robot on global path)
+      PathAlign.scale: 48.0
+      PathAlign.forward_point_distance: 0.1
+      
+      PathDist.scale: 48.0
+      
+      # Reduced goal attraction (prevents cutting corners)
+      GoalAlign.scale: 6.0
+      GoalAlign.forward_point_distance: 0.1
+      
+      GoalDist.scale: 6.0
+      
+      RotateToGoal.scale: 8.0
+      RotateToGoal.slowing_factor: 5.0
+      RotateToGoal.lookahead_time: -1.0
+      
+      Oscillation.scale: 1.0
+
+map_server:
+  ros__parameters:
+    use_sim_time: True
+    yaml_filename: ""
+
+smoother_server:
+  ros__parameters:
+    use_sim_time: True
+    smoother_plugins: ["simple_smoother"]
+    simple_smoother:
+      plugin: "nav2_smoother::SimpleSmoother"
+      tolerance: 1.0e-10
+      max_its: 1000
+      do_refinement: True
+
+behavior_server:
+  ros__parameters:
+    costmap_topic: local_costmap/costmap_raw
+    footprint_topic: local_costmap/published_footprint
+    cycle_frequency: 10.0
+    behavior_plugins: ["spin", "backup", "drive_on_heading", "assisted_teleop", "wait"]
+    spin:
+      plugin: "nav2_behaviors/Spin"
+    backup:
+      plugin: "nav2_behaviors/BackUp"
+    drive_on_heading:
+      plugin: "nav2_behaviors/DriveOnHeading"
+    assisted_teleop:
+      plugin: "nav2_behaviors/AssistedTeleop"
+    wait:
+      plugin: "nav2_behaviors/Wait"
+    global_frame: odom
+    robot_base_frame: base_footprint
+    transform_tolerance: 0.1
+    use_sim_time: true
+    simulate_ahead_time: 2.0
+    max_rotational_vel: 1.0
+    min_rotational_vel: 0.4
+    rotational_acc_lim: 3.2
+
+robot_state_publisher:
+  ros__parameters:
+    use_sim_time: True
+
+waypoint_follower:
+  ros__parameters:
+    use_sim_time: True
+    loop_rate: 20
+    stop_on_failure: false
+    waypoint_task_executor_plugin: "wait_at_waypoint"
+    wait_at_waypoint:
+      plugin: "nav2_waypoint_follower::WaitAtWaypoint"
+      enabled: True
+      waypoint_pause_duration: 200
+
+velocity_smoother:
+  ros__parameters:
+    use_sim_time: True
+    smoothing_frequency: 20.0
+    scale_velocities: False
+    feedback: "OPEN_LOOP"
+    max_velocity: [0.22, 0.0, 1.0]
+    min_velocity: [-0.22, 0.0, -1.0]
+    max_accel: [2.5, 0.0, 3.2]
+    max_decel: [-2.5, 0.0, -3.2]
+    odom_topic: "odom"
+    odom_duration: 0.1
+    deadband_velocity: [0.0, 0.0, 0.0]
+    velocity_timeout: 1.0
