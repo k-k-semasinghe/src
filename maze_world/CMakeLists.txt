@@ -28,5 +28,13 @@ install(
   DESTINATION share/${PROJECT_NAME}
 )
 
+install(
+  PROGRAMS
+    scripts/dqn_trainer.py
+    scripts/spawn_obstacle.py
+    scripts/remove_obstacle.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 
 ament_package()
